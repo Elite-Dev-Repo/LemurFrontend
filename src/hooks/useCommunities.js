@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react'
-import { fetchCommunities } from '../api/client'
+import { useState, useEffect } from "react";
+import { getCommunities } from "../api/client";
 
 export function useCommunities() {
-  const [communities, setCommunities] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [communities, setCommunities] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCommunities()
-      .then(({ data }) => setCommunities(Array.isArray(data) ? data : (data.results ?? [])))
+    getCommunities()
+      .then(({ data }) =>
+        setCommunities(Array.isArray(data) ? data : (data.results ?? [])),
+      )
       .catch(() => setCommunities([]))
-      .finally(() => setLoading(false))
-  }, [])
+      .finally(() => setLoading(false));
+  }, []);
 
-  return { communities, loading }
+  return { communities, loading };
 }

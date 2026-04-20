@@ -58,6 +58,7 @@ export const addComment = (postId, content) =>
   api.post("create_comment/", { post_id: postId, content });
 
 // ─── Communities ────────────────────────────────────────
+export const getCommunities = () => api.get("communities/");
 export const fetchCommunities = () => api.get("list-communities/");
 
 export default api;
