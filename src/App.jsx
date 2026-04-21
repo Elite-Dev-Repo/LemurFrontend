@@ -12,6 +12,7 @@ import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MobileCommunityPage from "./pages/MobileCommunityPage";
+import UsersPosts from "./pages/UsersPosts";
 import { Toaster } from "sonner";
 
 // 1. Define the router configuration outside the component
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
       {
         path: "post/:id",
         element: <PostDetailPage />,
+      },
+      {
+        path: "userposts/:id",
+        element: <UsersPosts />,
       },
       {
         path: "communities",

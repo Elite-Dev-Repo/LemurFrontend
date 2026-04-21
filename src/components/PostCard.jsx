@@ -64,13 +64,19 @@ export default function PostCard({
           {post.author?.username?.[0]?.toUpperCase() ?? "?"}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center flex-wrap gap-x-1.5 md:gap-x-2 gap-y-0.5">
-            <span
-              className="font-semibold text-xs md:text-sm"
-              style={{ color: "var(--color-secondary)" }}
+          <div className="flex  items-center flex-wrap gap-x-1.5 md:gap-x-2 gap-y-0.5">
+            <Link
+              to={`/userposts/${post.author.id}`}
+              className="hover:underline"
             >
-              {post.author?.username ?? "Anonymous"}
-            </span>
+              <span
+                className="font-semibold text-xs md:text-sm"
+                style={{ color: "var(--color-secondary)" }}
+              >
+                {post.author?.username ?? "Anonymous"}
+              </span>
+            </Link>
+
             <span
               className="text-[10px] md:text-xs"
               style={{ color: "rgba(58,58,60,0.45)" }}

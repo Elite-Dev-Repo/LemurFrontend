@@ -1,4 +1,4 @@
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import PostCard from "../components/PostCard";
 import ComposePost from "../components/ComposePost";
 import PostSkeleton from "../components/PostSkeleton";
@@ -7,11 +7,21 @@ import home from "../assets/home.svg";
 import LemurLogo from "../components/LemurLogo";
 
 export default function HomePage() {
-  const { posts, loading, error, reload, submitPost, likePost, commentOnPost } =
-    usePosts();
+  const {
+    posts,
+    loading,
+    error,
+    prevUrl,
+    nextUrl,
+    reload,
+    loadPrev,
+    loadNext,
+    submitPost,
+    likePost,
+    commentOnPost,
+  } = usePosts();
 
   return (
-    /* Added px-4 for mobile gutters and pb-24 to clear the mobile bottom nav */
     <div className="max-w-2xl mx-auto px-4 md:px-0 pt-2 pb-24 md:pb-8 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
@@ -23,7 +33,7 @@ export default function HomePage() {
           }}
         >
           <div className="md:hidden">
-            <LemurLogo />{" "}
+            <LemurLogo />
           </div>
           Latest Posts
         </h1>
@@ -98,6 +108,41 @@ export default function HomePage() {
             <PostCard post={post} onLike={likePost} onComment={commentOnPost} />
           </div>
         ))}
+
+      {/* Pagination — only render when there's something to paginate */}
+      {(prevUrl || nextUrl) && !loading && (
+        <div className="flex items-center justify-center gap-3 pt-2 pb-4">
+          <button
+            onClick={loadPrev}
+            disabled={!prevUrl}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              background: prevUrl
+                ? "var(--color-secondary)"
+                : "rgba(33,40,66,0.08)",
+              color: prevUrl ? "var(--color-primary)" : "rgba(58,58,60,0.4)",
+            }}
+          >
+            <ChevronLeft size={16} strokeWidth={2.5} />
+            Previous
+          </button>
+
+          <button
+            onClick={loadNext}
+            disabled={!nextUrl}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              background: nextUrl
+                ? "var(--color-secondary)"
+                : "rgba(33,40,66,0.08)",
+              color: nextUrl ? "var(--color-primary)" : "rgba(58,58,60,0.4)",
+            }}
+          >
+            Next
+            <ChevronRight size={16} strokeWidth={2.5} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

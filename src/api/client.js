@@ -46,8 +46,12 @@ export const authRegister = (username, email, password) =>
 
 // ─── Posts ──────────────────────────────────────────────
 export const fetchPosts = () => api.get("posts/");
+
+export const fetchUserPosts = () => api.get("posts/user/");
 export const fetchPost = (id) => api.get(`posts/${id}/`);
 export const createPost = (payload) => api.post("posts/", payload);
+
+export const filterPosts = (userid) => api.get(`posts/?author=${userid}`);
 
 // ─── Likes ──────────────────────────────────────────────
 export const toggleLike = (postId) =>

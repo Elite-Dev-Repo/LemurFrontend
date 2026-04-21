@@ -141,12 +141,17 @@ export default function PostDetailPage() {
             {post.author?.username?.[0]?.toUpperCase() ?? "?"}
           </div>
           <div className="flex-1 min-w-0">
-            <p
-              className="font-semibold text-sm md:text-base truncate"
-              style={{ color: "var(--color-secondary)" }}
+            <Link
+              to={`/userposts/${post.author.id}`}
+              className="hover:underline"
             >
-              {post.author?.username ?? "Anonymous"}
-            </p>
+              <p
+                className="font-semibold text-sm md:text-base truncate"
+                style={{ color: "var(--color-secondary)" }}
+              >
+                {post.author?.username ?? "Anonymous"}
+              </p>
+            </Link>
             <p
               className="text-[10px] md:text-xs"
               style={{ color: "rgba(58,58,60,0.45)" }}

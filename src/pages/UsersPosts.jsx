@@ -1,20 +1,24 @@
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { User, LogOut } from "lucide-react";
-import { fetchUserPosts } from "../api/client";
+import { filterPosts } from "../api/client";
 import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { id } = useParams();
+
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [postOwner, setPostOwner] = useState("Guest");
 
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const { data } = await fetchUserPosts();
+
+      const { data } = await filterPosts(id);
       // Ensure we are accessing the correct data structure from your API
       setPosts(data.results || []);
+      setPostOwner(data.results[0].author.username);
     } catch (err) {
       console.error("Failed to fetch posts:", err);
     } finally {
@@ -23,34 +27,8 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    if (user) {
-      fetchPosts();
-    }
-  }, [user]);
-
-  if (!user) {
-    return (
-      <div className="max-w-md mx-auto card p-8 md:p-12 text-center space-y-4 mt-10 px-6">
-        <User
-          size={40}
-          className="mx-auto"
-          style={{ color: "rgba(58,58,60,0.3)" }}
-        />
-        <p
-          className="font-bold text-lg"
-          style={{
-            fontFamily: "'Space Mono', serif",
-            color: "var(--color-secondary)",
-          }}
-        >
-          You're not logged in
-        </p>
-        <Link to="/login" className="btn-primary inline-flex mx-auto">
-          Sign in
-        </Link>
-      </div>
-    );
-  }
+    fetchPosts();
+  }, []);
 
   return (
     <div className="max-w-md mx-auto space-y-5 animate-fadeUp px-1 md:px-0">
@@ -61,7 +39,7 @@ export default function ProfilePage() {
           color: "var(--color-secondary)",
         }}
       >
-        Profile
+        Currently Viewing
       </h1>
 
       <div className="card p-6 md:p-8 text-center space-y-4">
@@ -72,7 +50,7 @@ export default function ProfilePage() {
             color: "var(--color-primary)",
           }}
         >
-          {user.username[0].toUpperCase()}
+          {postOwner[0].toUpperCase()}
         </div>
         <div className="space-y-1">
           <h2
@@ -82,21 +60,16 @@ export default function ProfilePage() {
               color: "var(--color-secondary)",
             }}
           >
-            {user.username}
+            {postOwner}
           </h2>
           <p className="text-sm" style={{ color: "rgba(58,58,60,0.5)" }}>
-            @{user.username.toLowerCase()}
+            @{postOwner.toLowerCase()}
           </p>
-        </div>
-        <div className="pt-2">
-          <button onClick={logout} className="btn-ghost mx-auto text-sm">
-            <LogOut size={15} /> Sign out
-          </button>
         </div>
       </div>
 
       <div className="card p-6 flex flex-col items-start space-y-2">
-        <h2 className="font-bold mb-2 text-center mx-auto">--Your Posts--</h2>
+        <h2 className="font-bold mb-2 text-center mx-auto">--Posts--</h2>
 
         {loading ? (
           <div className="w-10 h-10 border-[10px]  mx-auto border-dashed  border-secondary rounded-full animate-spin"></div>

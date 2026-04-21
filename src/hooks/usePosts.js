@@ -1,17 +1,25 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchPosts, createPost, toggleLike, addComment } from "../api/client";
+import api from "../api/client";
 
 export function usePosts() {
   const [posts, setPosts] = useState([]);
+  const [prevUrl, setPrevUrl] = useState(null);
+  const [nextUrl, setNextUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const load = useCallback(async () => {
+  const loadFromUrl = useCallback(async (url) => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await fetchPosts();
+      // If url is null fetch the default first page
+      const { data } = url ? await api.get(url) : await fetchPosts();
+      setPrevUrl(data.previous ?? null);
+      setNextUrl(data.next ?? null);
       setPosts(Array.isArray(data) ? data : (data.results ?? []));
+      // Scroll back to top of feed on page change
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setError("Could not load posts. Check your connection.");
     } finally {
@@ -19,9 +27,20 @@ export function usePosts() {
     }
   }, []);
 
+  // Initial load
   useEffect(() => {
-    load();
-  }, [load]);
+    loadFromUrl(null);
+  }, [loadFromUrl]);
+
+  const reload = useCallback(() => loadFromUrl(null), [loadFromUrl]);
+  const loadPrev = useCallback(
+    () => prevUrl && loadFromUrl(prevUrl),
+    [prevUrl, loadFromUrl],
+  );
+  const loadNext = useCallback(
+    () => nextUrl && loadFromUrl(nextUrl),
+    [nextUrl, loadFromUrl],
+  );
 
   const submitPost = useCallback(async (payload) => {
     const { data } = await createPost(payload);
@@ -29,7 +48,7 @@ export function usePosts() {
     return data;
   }, []);
 
-  const likePost = useCallback(async (userId, postId) => {
+  const likePost = useCallback(async (postId) => {
     setPosts((prev) =>
       prev.map((p) =>
         p.id !== postId
@@ -44,7 +63,6 @@ export function usePosts() {
     try {
       await toggleLike(postId);
     } catch {
-      // revert
       setPosts((prev) =>
         prev.map((p) =>
           p.id !== postId
@@ -59,7 +77,7 @@ export function usePosts() {
     }
   }, []);
 
-  const commentOnPost = useCallback(async (userId, postId, content) => {
+  const commentOnPost = useCallback(async (postId, content) => {
     const { data } = await addComment(postId, content);
     setPosts((prev) =>
       prev.map((p) =>
@@ -73,7 +91,11 @@ export function usePosts() {
     posts,
     loading,
     error,
-    reload: load,
+    prevUrl,
+    nextUrl,
+    reload,
+    loadPrev,
+    loadNext,
     submitPost,
     likePost,
     commentOnPost,

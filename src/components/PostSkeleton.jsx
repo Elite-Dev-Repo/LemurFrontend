@@ -19,5 +19,5 @@ export default function PostSkeleton() {
         <div className="skeleton h-4 w-12 rounded" />
       </div>
     </div>
-  )
+  );
 }
