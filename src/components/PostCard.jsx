@@ -38,7 +38,7 @@ export default function PostCard({
     e.preventDefault();
     e.stopPropagation();
     if (!user) return;
-    onLike?.(user.id, post.id);
+    onLike?.(post.id);
   };
 
   const handleComment = async (e) => {
@@ -124,7 +124,7 @@ export default function PostCard({
           </h2>
         )}
         <p
-          className="text-sm md:text-base leading-relaxed whitespace-pre-wrap break-words"
+          className="text-sm md:text-base font-semibold leading-relaxed whitespace-pre-wrap break-words"
           style={{ color: "var(--color-main)" }}
         >
           {expanded

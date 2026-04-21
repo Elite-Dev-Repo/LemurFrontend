@@ -200,7 +200,7 @@ export default function PostDetailPage() {
         </p>
 
         <div
-          className="prose max-w-none text-sm md:text-[15px] leading-relaxed whitespace-pre-wrap break-words mb-6"
+          className="prose max-w-none text-sm md:text-[15px] font-semibold leading-relaxed whitespace-pre-wrap break-words mb-6"
           style={{ color: "var(--color-main)" }}
         >
           {post.content}
