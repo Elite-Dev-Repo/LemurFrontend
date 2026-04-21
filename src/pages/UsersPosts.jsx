@@ -16,7 +16,8 @@ export default function ProfilePage() {
       setLoading(true);
 
       const { data } = await filterPosts(id);
-      // we are accessing the correct data structure from your API
+      // Emsure we are accessing the correct data structure from your API
+
       setPosts(data.results || []);
       setPostOwner(data.results[0].author.username);
     } catch (err) {
