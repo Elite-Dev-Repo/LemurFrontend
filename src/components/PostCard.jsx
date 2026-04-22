@@ -46,7 +46,7 @@ export default function PostCard({
     if (!commentText.trim() || submitting || !user) return;
     setSubmitting(true);
     try {
-      await onComment?.(user.id, post.id, commentText.trim());
+      await onComment?.(post.id, commentText.trim());
       setCommentText("");
     } finally {
       setSubmitting(false);
