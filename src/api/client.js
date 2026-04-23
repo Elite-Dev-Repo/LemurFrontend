@@ -52,6 +52,8 @@ export const fetchPost = (id) => api.get(`posts/${id}/`);
 export const createPost = (payload) => api.post("posts/", payload);
 
 export const filterPosts = (userid) => api.get(`posts/?author=${userid}`);
+export const searchPosts = (searchQuery) =>
+  api.get(`posts/?search=${searchQuery}`);
 
 // ─── Likes ──────────────────────────────────────────────
 export const toggleLike = (postId) =>

@@ -1,12 +1,28 @@
-import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  X,
+  Loader2,
+} from "lucide-react";
+
+import searchsvg from "../assets/search.svg";
 import PostCard from "../components/PostCard";
 import ComposePost from "../components/ComposePost";
 import PostSkeleton from "../components/PostSkeleton";
 import { usePosts } from "../hooks/usePosts";
 import home from "../assets/home.svg";
 import LemurLogo from "../components/LemurLogo";
+import { useState } from "react";
+import { searchPosts } from "../api/client";
 
 export default function HomePage() {
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+
   const {
     posts,
     loading,
@@ -21,8 +37,103 @@ export default function HomePage() {
     commentOnPost,
   } = usePosts();
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
+    try {
+      const { data } = await searchPosts(searchQuery);
+      // Ensure we handle the data structure correctly (assuming results is the array)
+      setSearchResults(data.results || data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const closeSearch = () => {
+    setShowSearch(false);
+    setSearchResults([]);
+    setSearchQuery("");
+  };
+
   return (
-    <div className="max-w-2xl mx-auto px-4 md:px-0 pt-2 pb-24 md:pb-8 space-y-4">
+    <div className="max-w-2xl mx-auto px-4 md:px-0 pt-2 pb-24 md:pb-8 space-y-4 relative">
+      {/* Search Pop-up Overlay */}
+      {showSearch && (
+        <div
+          className="fixed inset-0 z-[60] flex items-start justify-center pt-20 px-4 bg-black/40 backdrop-blur-sm overflow-y-auto pb-10"
+          onClick={closeSearch}
+        >
+          <div
+            className="w-full max-w-md bg-white p-6 rounded-2xl shadow-xl animate-fadeUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3
+                className="font-bold"
+                style={{ fontFamily: "'Space Mono', serif" }}
+              >
+                Search Posts
+              </h3>
+              <button
+                onClick={closeSearch}
+                className="p-1 hover:bg-gray-100 rounded-full"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 mb-4">
+              <input
+                type="text"
+                placeholder="Search for something..."
+                autoFocus
+                value={searchQuery}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchResults([]);
+                }}
+                className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary/20 transition-all text-sm"
+                style={{ borderColor: "var(--color-secondary-light)" }}
+              />
+              <button
+                onClick={handleSearch}
+                disabled={searching}
+                className="px-4 py-3 rounded-xl bg-secondary text-white hover:bg-secondary/90 transition-colors disabled:opacity-50"
+              >
+                {searching ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Search size={18} />
+                )}
+              </button>
+            </div>
+
+            {/* Search Results Area */}
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+              {searchResults.length > 0
+                ? searchResults.map((post) => (
+                    <div key={post.id} className="animate-fadeUp">
+                      <PostCard
+                        post={post}
+                        onLike={likePost}
+                        onComment={commentOnPost}
+                      />
+                    </div>
+                  ))
+                : !searching &&
+                  searchQuery && (
+                    <p className="text-center text-sm py-4 opacity-50">
+                      <img src={searchsvg} className="w-20 mx-auto" alt="" />
+                    </p>
+                  )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h1
@@ -37,20 +148,30 @@ export default function HomePage() {
           </div>
           Latest Posts
         </h1>
-        <button
-          onClick={reload}
-          className="p-2 rounded-xl transition-colors"
-          style={{ color: "rgba(58,58,60,0.4)" }}
-          title="Refresh"
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "rgba(33,40,66,0.07)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "transparent")
-          }
-        >
-          <RefreshCw size={17} strokeWidth={2} />
-        </button>
+
+        <div className="flex items-center gap-2 md:gap-4">
+          <button onClick={() => setShowSearch(true)}>
+            <Search
+              size={34}
+              strokeWidth={2}
+              className="p-2 rounded-lg hover:bg-black/10"
+            />
+          </button>
+          <button
+            onClick={reload}
+            className="p-2 rounded-xl transition-colors"
+            style={{ color: "rgba(58,58,60,0.4)" }}
+            title="Refresh"
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(33,40,66,0.07)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "transparent")
+            }
+          >
+            <RefreshCw size={17} strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
       {/* Compose */}
@@ -109,7 +230,7 @@ export default function HomePage() {
           </div>
         ))}
 
-      {/* Pagination — only render when there's something to paginate */}
+      {/* Pagination */}
       {(prevUrl || nextUrl) && !loading && (
         <div className="flex items-center justify-center gap-3 pt-2 pb-4">
           <button
